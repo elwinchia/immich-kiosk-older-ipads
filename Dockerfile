@@ -27,7 +27,10 @@ RUN go tool templ generate
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -a -installsuffix cgo -ldflags "-X main.version=${VERSION} -X github.com/damongolding/immich-kiosk/internal/utils.runningInContainer=true -s -w" -o dist/kiosk .
 
 # Release
-FROM gcr.io/distroless/static-debian13:nonroot
+# fork (immich-kiosk-legacy): Alpine instead of distroless, for ffmpeg (legacy-mode
+# video transcodes). Same non-root uid as distroless:nonroot.
+FROM alpine:3.22
+RUN apk add --no-cache ffmpeg ca-certificates tzdata
 
 ENV TZ=Europe/London
 ENV TERM=xterm-256color
@@ -39,6 +42,6 @@ WORKDIR /
 COPY --from=build /app/demo.config.yaml .
 COPY --from=build /app/dist/kiosk .
 
-USER nonroot
+USER 65532:65532
 
 ENTRYPOINT ["/kiosk"]

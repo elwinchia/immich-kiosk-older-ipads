@@ -229,6 +229,8 @@ func main() {
 
 	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, c), AssetCacheMiddlewareWithConfig(baseConfig))
 
+	e.GET("/legacy/image/:token", routes.LegacyImage)
+
 	e.POST("/asset/new", routes.NewAsset(baseConfig, c))
 
 	e.POST("/asset/offline", routes.OfflineMode(baseConfig, c))

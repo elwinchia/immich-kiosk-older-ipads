@@ -1,6 +1,7 @@
 import { formatRFC3339 } from "date-fns/formatRFC3339";
 import htmx from "htmx.org";
 import "htmx-ext-sse";
+import { releaseMedia, scheduleLegacyReload } from "./legacy";
 import type { TimeFormat } from "./clock";
 import { initClock } from "./clock";
 import {
@@ -83,6 +84,8 @@ type KioskData = {
     httpTimeout: number;
     upArrowAction: string;
     downArrowAction: string;
+    legacy: boolean;
+    legacyReload: number;
 };
 
 const MAX_FRAMES: number = 2 as const;
@@ -156,6 +159,8 @@ async function init(): Promise<void> {
     }
 
     registerVideoMuteApi();
+
+    if (kioskData.legacy) scheduleLegacyReload(kioskData.legacyReload);
 
     const MILLISECONDS_PER_SECOND = 1000;
     const TIMEOUT_GRACE_FACTOR = 3;
@@ -557,6 +562,7 @@ async function cleanupFrames(): Promise<void> {
             ? frames.length - 1
             : 0;
         try {
+            if (kioskData.legacy) releaseMedia(frames[toRemove]);
             frames[toRemove].remove();
         } catch (error) {
             console.error("Failed to remove frame:", error);

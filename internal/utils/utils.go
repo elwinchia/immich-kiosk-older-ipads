@@ -323,31 +323,39 @@ func ApplyExifOrientation(img image.Image, orient orientation) image.Image {
 
 // ImageToBase64 converts an image.Image to a base64 encoded data URI string with appropriate MIME type
 func ImageToBase64(img image.Image, mimeType string) (string, error) {
+	data, mimeType, err := EncodeImage(img, mimeType)
+	if err != nil {
+		return "", err
+	}
+
+	base64Encoding := fmt.Sprintf("data:%s;base64,%s", mimeType, base64.StdEncoding.EncodeToString(data))
+	return base64Encoding, nil
+}
+
+// EncodeImage encodes an image.Image as PNG, GIF or JPEG (the default) and returns the
+// bytes together with the MIME type actually used.
+func EncodeImage(img image.Image, mimeType string) ([]byte, string, error) {
 	var buf bytes.Buffer
 
 	switch mimeType {
 	case kiosk.MimeTypePng:
-		err := imaging.Encode(&buf, img, imaging.PNG)
-		if err != nil {
-			return "", err
+		if err := imaging.Encode(&buf, img, imaging.PNG); err != nil {
+			return nil, "", err
 		}
 	case kiosk.MimeTypeGif:
-		err := imaging.Encode(&buf, img, imaging.GIF)
-		if err != nil {
-			return "", err
+		if err := imaging.Encode(&buf, img, imaging.GIF); err != nil {
+			return nil, "", err
 		}
 	case kiosk.MimeTypeJpeg, kiosk.MimeTypeJpg, "":
 		fallthrough
 	default:
 		mimeType = kiosk.MimeTypeJpeg
-		err := imaging.Encode(&buf, img, imaging.JPEG)
-		if err != nil {
-			return "", err
+		if err := imaging.Encode(&buf, img, imaging.JPEG); err != nil {
+			return nil, "", err
 		}
 	}
 
-	base64Encoding := fmt.Sprintf("data:%s;base64,%s", mimeType, base64.StdEncoding.EncodeToString(buf.Bytes()))
-	return base64Encoding, nil
+	return buf.Bytes(), mimeType, nil
 }
 
 // BytesToBase64 converts a byte slice to a base64 encoded string with MIME type prefix.

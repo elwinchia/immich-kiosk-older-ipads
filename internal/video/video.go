@@ -256,6 +256,19 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 		return
 	}
 
+	// legacy mode (fork): old iPads cannot decode the HEVC iPhones record
+	if requestConfig.Legacy {
+		if legacyPath, err := transcodeForLegacy(filePath); err != nil {
+			log.Error("Legacy transcode failed, keeping original", "id", videoID, "err", err)
+		} else {
+			_ = os.Remove(filePath)
+			filePath = legacyPath
+			filename = filepath.Base(legacyPath)
+			contentType = "video/mp4"
+			immichAsset.ServedMimeType = contentType
+		}
+	}
+
 	var imageData, imageBlurData string
 
 	defer func() {

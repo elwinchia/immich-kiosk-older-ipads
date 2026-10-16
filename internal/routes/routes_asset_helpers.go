@@ -541,7 +541,7 @@ func processBlurredImage(img image.Image, assetType immich.AssetType, config con
 
 	logImageProcessing(config.Kiosk.DebugVerbose, requestID, deviceID, isPrefetch, "Blurred", startTime)
 
-	return imageToBase64(imgBlur, kiosk.MimeTypeJpeg, config.Kiosk.DebugVerbose, requestID, deviceID, "Converted blurred", isPrefetch)
+	return imageToSrc(imgBlur, kiosk.MimeTypeJpeg, config, requestID, deviceID, "Converted blurred", isPrefetch)
 }
 
 // logImageProcessing logs the time taken for image processing if debug verbose is enabled.
@@ -712,7 +712,7 @@ func handleFaceProcessing(img image.Image, asset *immich.Asset, config config.Co
 func convertImages(img image.Image, assetType immich.AssetType, mimeType string, config config.Config, metadata requestMetadata, isPrefetch bool) (string, string, color.RGBA, error) {
 	var dominantColor color.RGBA
 
-	imgString, err := imageToBase64(img, mimeType, config.Kiosk.DebugVerbose, metadata.requestID, metadata.deviceID, "Converted", isPrefetch)
+	imgString, err := imageToSrc(img, mimeType, config, metadata.requestID, metadata.deviceID, "Converted", isPrefetch)
 	if err != nil {
 		return "", "", dominantColor, err
 	}

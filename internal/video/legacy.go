@@ -1,0 +1,48 @@
+package video
+
+// Legacy-device support (fork: immich-kiosk-legacy).
+//
+// iPhones record HEVC, and Immich passes HEVC through when it is an accepted codec.
+// Old iPads (A7/A8) have no HEVC decoder, so in legacy mode downloaded clips are
+// transcoded to 720p H.264 Main, muted, with faststart. Needs ffmpeg on PATH; without
+// it the original clip is kept and an error is logged.
+
+import (
+	"context"
+	"fmt"
+	"os"
+	"os/exec"
+	"strings"
+	"time"
+)
+
+func transcodeForLegacy(src string) (string, error) {
+	if _, err := exec.LookPath("ffmpeg"); err != nil {
+		return "", fmt.Errorf("ffmpeg not found: %w", err)
+	}
+
+	dst := strings.TrimSuffix(src, ".legacy.mp4") + ".legacy.mp4"
+	tmp := dst + ".part"
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "nice", "-n", "10", "ffmpeg", "-nostdin", "-loglevel", "error", "-y",
+		"-i", src, "-map", "0:v:0", "-an",
+		"-vf", "scale='if(gt(iw,ih),-2,720)':'if(gt(iw,ih),720,-2)':out_range=tv,format=yuv420p,fps=30",
+		"-c:v", "libx264", "-preset", "veryfast", "-crf", "24", "-profile:v", "main", "-level", "3.1",
+		"-pix_fmt", "yuv420p", "-color_range", "tv", "-threads", "4", "-movflags", "+faststart",
+		"-f", "mp4", tmp)
+
+	if out, err := cmd.CombinedOutput(); err != nil {
+		_ = os.Remove(tmp)
+		return "", fmt.Errorf("ffmpeg: %w: %s", err, strings.TrimSpace(string(out)))
+	}
+
+	if err := os.Rename(tmp, dst); err != nil {
+		_ = os.Remove(tmp)
+		return "", err
+	}
+
+	return dst, nil
+}

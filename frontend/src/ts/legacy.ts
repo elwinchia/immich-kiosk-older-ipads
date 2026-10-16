@@ -61,4 +61,75 @@ function scheduleLegacyReload(minutes: number): void {
     setTimeout(tryReload, minutes * 60_000);
 }
 
-export { releaseMedia, scheduleLegacyReload };
+/**
+ * Shows a line of text on screen when `legacy_debug=true` is in the URL — old iPads
+ * have no reachable console.
+ * @param msg - What to show
+ */
+function legacyDebug(msg: string): void {
+    if (!/[?&]legacy_debug=(true|1)\b/.test(window.location.search)) return;
+    let box = document.getElementById("legacy-debug");
+    if (!box) {
+        box = document.createElement("div");
+        box.id = "legacy-debug";
+        box.style.cssText =
+            "position:fixed;left:8px;top:8px;z-index:99999;max-width:60%;font:12px/1.3 monospace;" +
+            "color:#fff;background:rgba(0,0,0,.7);padding:6px 8px;border-radius:4px;pointer-events:none";
+        document.body.appendChild(box);
+    }
+    const line = document.createElement("div");
+    line.textContent = `${new Date().toLocaleTimeString()} ${msg}`;
+    box.appendChild(line);
+    while (box.childNodes.length > 8 && box.firstChild) {
+        box.removeChild(box.firstChild);
+    }
+}
+
+/**
+ * Makes videos inserted by htmx actually autoplay on old iOS. WebKit does not reliably
+ * apply the `muted` attribute to a video parsed from an HTML string, so iOS treats it as
+ * a video with sound and silently refuses to autoplay it. Setting the property from
+ * script and calling play() ourselves works.
+ * @param root - The element htmx just inserted
+ */
+function startInsertedVideos(root: Element): void {
+    const videos: HTMLVideoElement[] =
+        root instanceof HTMLVideoElement
+            ? [root]
+            : Array.prototype.slice.call(root.querySelectorAll("video"));
+
+    videos.forEach((video) => {
+        if (video.hasAttribute("muted")) {
+            video.muted = true;
+            video.defaultMuted = true;
+        }
+        video.setAttribute("playsinline", "");
+        video.setAttribute("webkit-playsinline", "");
+        (video as HTMLVideoElement & { playsInline: boolean }).playsInline =
+            true;
+
+        if (!video.hasAttribute("autoplay")) return;
+
+        const tag = (video.getAttribute("data-group") || "video").slice(-8);
+        const attempt = (): void => {
+            const p = video.play();
+            if (p && typeof p.catch === "function") {
+                p.then(() => legacyDebug(`playing ${tag}`)).catch(
+                    (err: Error) =>
+                        legacyDebug(
+                            `play() ${tag}: ${err.name} ${err.message}`,
+                        ),
+                );
+            }
+        };
+        attempt();
+        // some iOS builds ignore play() before data arrives; try again once it can play
+        video.addEventListener("canplay", attempt, { once: true });
+        video.addEventListener("error", () => {
+            const code = video.error ? video.error.code : "?";
+            legacyDebug(`video error ${tag}: code ${code}`);
+        });
+    });
+}
+
+export { legacyDebug, releaseMedia, scheduleLegacyReload, startInsertedVideos };

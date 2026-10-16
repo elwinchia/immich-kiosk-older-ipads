@@ -1,7 +1,12 @@
 import { formatRFC3339 } from "date-fns/formatRFC3339";
 import htmx from "htmx.org";
 import "htmx-ext-sse";
-import { releaseMedia, scheduleLegacyReload } from "./legacy";
+import {
+    legacyDebug,
+    releaseMedia,
+    scheduleLegacyReload,
+    startInsertedVideos,
+} from "./legacy";
 import type { TimeFormat } from "./clock";
 import { initClock } from "./clock";
 import {
@@ -160,7 +165,15 @@ async function init(): Promise<void> {
 
     registerVideoMuteApi();
 
-    if (kioskData.legacy) scheduleLegacyReload(kioskData.legacyReload);
+    if (kioskData.legacy) {
+        scheduleLegacyReload(kioskData.legacyReload);
+        // htmx:load fires for every element htmx inserts (frames and the live-photo snippet)
+        document.body.addEventListener("htmx:load", (e) => {
+            const elt = (e as CustomEvent<{ elt: Element }>).detail?.elt;
+            if (elt) startInsertedVideos(elt);
+        });
+        legacyDebug(`legacy mode on, ${navigator.userAgent}`);
+    }
 
     const MILLISECONDS_PER_SECOND = 1000;
     const TIMEOUT_GRACE_FACTOR = 3;

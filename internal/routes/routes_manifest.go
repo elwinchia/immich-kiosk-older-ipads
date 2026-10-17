@@ -45,11 +45,12 @@ func Manifest(c *echo.Context) error {
 		return errors.New("could not read URL. Is it formatted correctly?")
 	}
 
+	// fork: StartURL keeps the query, or "Add to Home Screen" drops ?legacy=true and friends
 	manifest := &ManifestJSON{
 		Name:            "Immich Kiosk",
 		ShortName:       "Kiosk",
 		Description:     "Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses Immich as a data source.",
-		StartURL:        referer.Path,
+		StartURL:        referer.RequestURI(),
 		Scope:           "/",
 		Display:         "fullscreen",
 		BackgroundColor: "#000000",

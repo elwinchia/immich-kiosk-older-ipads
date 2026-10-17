@@ -167,11 +167,16 @@ async function init(): Promise<void> {
 
     if (kioskData.legacy) {
         scheduleLegacyReload(kioskData.legacyReload);
-        // htmx:load fires for every element htmx inserts (frames and the live-photo snippet)
-        document.body.addEventListener("htmx:load", (e) => {
-            const elt = (e as CustomEvent<{ elt: Element }>).detail?.elt;
-            if (elt) startInsertedVideos(elt);
-        });
+        // htmx:load fires for every element htmx inserts (frames and the live-photo snippet);
+        // capture phase, so videos are replaced before the frame's own hx-on::load runs
+        document.addEventListener(
+            "htmx:load",
+            (e) => {
+                const elt = (e as CustomEvent<{ elt: Element }>).detail?.elt;
+                if (elt) startInsertedVideos(elt);
+            },
+            true,
+        );
         legacyDebug(`legacy mode on, ${navigator.userAgent}`);
     }
 

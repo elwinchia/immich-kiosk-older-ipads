@@ -86,17 +86,32 @@ function legacyDebug(msg: string): void {
 }
 
 /**
- * Makes videos inserted by htmx actually autoplay on old iOS. WebKit does not reliably
- * apply the `muted` attribute to a video parsed from an HTML string, so iOS treats it as
- * a video with sound and silently refuses to autoplay it. Setting the property from
- * script and calling play() ourselves works.
+ * Makes videos inserted by htmx actually autoplay on old iOS. htmx parses fragments in a
+ * separate document (a <template>) and moves the nodes into the page; iOS 12 WebKit
+ * then refuses play() on such a video with NotAllowedError even when it is muted
+ * (tested on an iPad Air 1, iOS 12.5.8: adopted videos fail, videos created in the page
+ * play). So each inserted video is swapped for a fresh one made in this document, then
+ * muted from script and started.
+ * Must run before Kiosk's own hx-on::load handlers look the video up, so it is
+ * registered as a capture listener on the document.
  * @param root - The element htmx just inserted
  */
 function startInsertedVideos(root: Element): void {
-    const videos: HTMLVideoElement[] =
+    const inserted: HTMLVideoElement[] =
         root instanceof HTMLVideoElement
             ? [root]
             : Array.prototype.slice.call(root.querySelectorAll("video"));
+
+    const videos = inserted.map((old) => {
+        const fresh = document.createElement("video");
+        for (let i = 0; i < old.attributes.length; i++) {
+            const a = old.attributes[i];
+            fresh.setAttribute(a.name, a.value);
+        }
+        while (old.firstChild) fresh.appendChild(old.firstChild);
+        if (old.parentNode) old.parentNode.replaceChild(fresh, old);
+        return fresh;
+    });
 
     videos.forEach((video) => {
         if (video.hasAttribute("muted")) {

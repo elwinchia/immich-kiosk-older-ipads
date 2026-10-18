@@ -215,7 +215,8 @@ func (v *Manager) addToQueue(id string) {
 }
 
 // DownloadVideo downloads a video file and adds it to the cache
-func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.Config, deviceID string, requestURL string) {
+// boomerang (fork) is set for live photo clips when LivePhotoBoomerang is on.
+func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.Config, deviceID string, requestURL string, boomerang bool) {
 	videoID := immichAsset.ID
 
 	v.addToQueue(videoID)
@@ -256,9 +257,10 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 		return
 	}
 
-	// legacy mode (fork): old iPads cannot decode the HEVC iPhones record
-	if requestConfig.Legacy {
-		if legacyPath, err := transcodeForLegacy(filePath); err != nil {
+	// legacy mode (fork): old iPads cannot decode the HEVC iPhones record.
+	// Boomerang clips go through the same transcode, which appends the reversed clip.
+	if requestConfig.Legacy || boomerang {
+		if legacyPath, err := transcodeForLegacy(filePath, boomerang); err != nil {
 			log.Error("Legacy transcode failed, keeping original", "id", videoID, "err", err)
 		} else {
 			_ = os.Remove(filePath)

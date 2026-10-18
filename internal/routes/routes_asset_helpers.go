@@ -457,7 +457,7 @@ func processVideo(immichAsset *immich.Asset, requestConfig config.Config, reques
 
 	//  video is not available, is video downloading?
 	if !VideoManager.IsDownloading(immichAsset.ID) {
-		go VideoManager.DownloadVideo(*immichAsset, requestConfig, deviceID, requestURL)
+		go VideoManager.DownloadVideo(*immichAsset, requestConfig, deviceID, requestURL, false)
 	}
 
 	// video not ready yet; signal caller to pick another asset
@@ -486,7 +486,7 @@ func processImage(immichAsset *immich.Asset, requestConfig config.Config, reques
 		return nil, err
 	}
 
-	go VideoManager.DownloadVideo(livePhoto, requestConfig, deviceID, "")
+	go VideoManager.DownloadVideo(livePhoto, requestConfig, deviceID, "", requestConfig.LivePhotoBoomerang)
 
 	return fetchImagePreview(immichAsset, requestConfig.UseOriginalImage, requestID, deviceID, isPrefetch)
 }

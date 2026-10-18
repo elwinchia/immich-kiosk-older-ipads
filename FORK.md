@@ -20,6 +20,11 @@ per device: `http://<kiosk>/?legacy=true` (or `legacy: true` / `KIOSK_LEGACY=tru
 Options: `legacy` (bool, default false), `legacy_reload` (minutes, default 60, 0 = off).
 Video posters are still inline base64 (one per video, not per slide).
 
+`live_photo_boomerang` (bool, default false; env `KIOSK_LIVE_PHOTO_BOOMERANG`, any mode): Live Photo clips
+play forward then backward. The reversed half is appended in the same server-side ffmpeg pass
+(`internal/video/legacy.go`), so the only copy is the temp clip the video manager deletes 10 min after
+its last view; nothing is written to Immich. A 3 s clip becomes ~6 s, ~0.7 s to make, ~385 MB peak RAM.
+
 ## Files
 
 `internal/routes/routes_legacy.go` (+ test), `internal/video/legacy.go`, `frontend/src/ts/legacy.ts`;

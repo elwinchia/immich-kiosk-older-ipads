@@ -454,6 +454,9 @@ type Config struct {
 	// LivePhotos show live photos
 	LivePhotos         bool `json:"livePhotos" yaml:"live_photos" mapstructure:"live_photos" query:"live_photos" form:"live_photos" default:"false"`
 	LivePhotoLoopDelay int  `json:"livePhotoLoopDelay" yaml:"live_photo_loop_delay" mapstructure:"live_photo_loop_delay" query:"live_photo_loop_delay" form:"live_photo_loop_delay" default:"0"`
+	// LivePhotoBoomerang (fork) plays live photo clips forward then backward. The reversed
+	// half is added in the server-side transcode; nothing is written outside the video temp dir.
+	LivePhotoBoomerang bool `json:"livePhotoBoomerang" yaml:"live_photo_boomerang" mapstructure:"live_photo_boomerang" query:"live_photo_boomerang" form:"live_photo_boomerang" default:"false"`
 	// ShowAnimatedGifs show animated gifs
 	ShowAnimatedGifs bool `json:"showAnimatedGifs" yaml:"show_animated_gifs" mapstructure:"show_animated_gifs" query:"show_animated_gifs" form:"show_animated_gifs" default:"false"`
 

@@ -117,7 +117,11 @@ templ renderImage(viewData common.ViewData, imageData common.ViewImageData, tags
 templ renderLivePhoto(viewData common.ViewData, imageData common.ViewImageData) {
 	<div
 		style="display: none"
-		hx-get={ "/live/" + imageData.ImmichAsset.LivePhotoVideoID }
+		if viewData.LivePhotoBoomerang {
+			hx-get={ "/live/" + imageData.ImmichAsset.LivePhotoVideoID + "?boomerang=true" }
+		} else {
+			hx-get={ "/live/" + imageData.ImmichAsset.LivePhotoVideoID }
+		}
 		hx-swap="outerHTML"
 		hx-trigger="load, every 1s"
 		hx-request='{"timeout":5000}'

@@ -95,6 +95,6 @@ func LivePhoto(demoMode bool, password string) echo.HandlerFunc {
 			videoOrientation = kiosk.PortraitOrientation
 		}
 
-		return Render(c, kiosk.StatusStopHTMXPolling, partials.LivePhoto(video.ID, video.ContentType, videoOrientation, password))
+		return Render(c, kiosk.StatusStopHTMXPolling, partials.LivePhoto(video.ID, video.ContentType, videoOrientation, password, c.QueryParam("boomerang") == "true"))
 	}
 }

@@ -1,9 +1,9 @@
 package video
 
-// Legacy-device support (fork: immich-kiosk-legacy).
+// Older-iPad support (fork: immich-kiosk-older-ipads).
 //
 // iPhones record HEVC, and Immich passes HEVC through when it is an accepted codec.
-// Old iPads (A7/A8) have no HEVC decoder, so in legacy mode downloaded clips are
+// Old iPads (A7/A8) have no HEVC decoder, so in older-iPad mode downloaded clips are
 // transcoded to 720p H.264 Main, muted, with faststart. Needs ffmpeg on PATH; without
 // it the original clip is kept and an error is logged.
 //
@@ -21,12 +21,12 @@ import (
 	"time"
 )
 
-func transcodeForLegacy(src string, boomerang bool) (string, error) {
+func transcodeForOlderIPad(src string, boomerang bool) (string, error) {
 	if _, err := exec.LookPath("ffmpeg"); err != nil {
 		return "", fmt.Errorf("ffmpeg not found: %w", err)
 	}
 
-	dst := strings.TrimSuffix(src, ".legacy.mp4") + ".legacy.mp4"
+	dst := strings.TrimSuffix(src, ".ipad.mp4") + ".ipad.mp4"
 	tmp := dst + ".part"
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)

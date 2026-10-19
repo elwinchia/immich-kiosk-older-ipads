@@ -1,5 +1,5 @@
 /**
- * Legacy-device support (fork: immich-kiosk-legacy).
+ * Older-iPad support (fork: immich-kiosk-older-ipads).
  *
  * Old iPads (iOS 12, 1 GB of RAM) get killed by iOS when memory grows. Two things
  * keep it flat: media in a removed frame is released explicitly (WebKit keeps decoded
@@ -43,11 +43,11 @@ function releaseMedia(el: Element): void {
  * leaves the last photo on screen instead of an error page.
  * @param minutes - Minutes between reloads; 0 or less disables it
  */
-function scheduleLegacyReload(minutes: number): void {
+function scheduleOlderIPadReload(minutes: number): void {
     if (!minutes || minutes <= 0) return;
 
     const tryReload = (): void => {
-        fetch(`/health?legacy-reload=${Date.now()}`, { cache: "no-store" })
+        fetch(`/health?older-ipad-reload=${Date.now()}`, { cache: "no-store" })
             .then((res) => {
                 if (res.ok) {
                     window.location.reload();
@@ -62,16 +62,16 @@ function scheduleLegacyReload(minutes: number): void {
 }
 
 /**
- * Shows a line of text on screen when `legacy_debug=true` is in the URL — old iPads
+ * Shows a line of text on screen when `older_ipad_debug=true` is in the URL — old iPads
  * have no reachable console.
  * @param msg - What to show
  */
-function legacyDebug(msg: string): void {
-    if (!/[?&]legacy_debug=(true|1)\b/.test(window.location.search)) return;
-    let box = document.getElementById("legacy-debug");
+function olderIPadDebug(msg: string): void {
+    if (!/[?&]older_ipad_debug=(true|1)\b/.test(window.location.search)) return;
+    let box = document.getElementById("older-ipad-debug");
     if (!box) {
         box = document.createElement("div");
-        box.id = "legacy-debug";
+        box.id = "older-ipad-debug";
         box.style.cssText =
             "position:fixed;left:8px;top:8px;z-index:99999;max-width:60%;font:12px/1.3 monospace;" +
             "color:#fff;background:rgba(0,0,0,.7);padding:6px 8px;border-radius:4px;pointer-events:none";
@@ -129,9 +129,9 @@ function startInsertedVideos(root: Element): void {
         const attempt = (): void => {
             const p = video.play();
             if (p && typeof p.catch === "function") {
-                p.then(() => legacyDebug(`playing ${tag}`)).catch(
+                p.then(() => olderIPadDebug(`playing ${tag}`)).catch(
                     (err: Error) =>
-                        legacyDebug(
+                        olderIPadDebug(
                             `play() ${tag}: ${err.name} ${err.message}`,
                         ),
                 );
@@ -142,9 +142,9 @@ function startInsertedVideos(root: Element): void {
         video.addEventListener("canplay", attempt, { once: true });
         video.addEventListener("error", () => {
             const code = video.error ? video.error.code : "?";
-            legacyDebug(`video error ${tag}: code ${code}`);
+            olderIPadDebug(`video error ${tag}: code ${code}`);
         });
     });
 }
 
-export { legacyDebug, releaseMedia, scheduleLegacyReload, startInsertedVideos };
+export { olderIPadDebug, releaseMedia, scheduleOlderIPadReload, startInsertedVideos };

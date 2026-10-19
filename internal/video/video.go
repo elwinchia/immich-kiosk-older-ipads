@@ -257,15 +257,15 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 		return
 	}
 
-	// legacy mode (fork): old iPads cannot decode the HEVC iPhones record.
+	// older-iPad mode (fork): old iPads cannot decode the HEVC iPhones record.
 	// Boomerang clips go through the same transcode, which appends the reversed clip.
-	if requestConfig.Legacy || boomerang {
-		if legacyPath, err := transcodeForLegacy(filePath, boomerang); err != nil {
-			log.Error("Legacy transcode failed, keeping original", "id", videoID, "err", err)
+	if requestConfig.OlderIPad || boomerang {
+		if olderIPadPath, err := transcodeForOlderIPad(filePath, boomerang); err != nil {
+			log.Error("Older-iPad transcode failed, keeping original", "id", videoID, "err", err)
 		} else {
 			_ = os.Remove(filePath)
-			filePath = legacyPath
-			filename = filepath.Base(legacyPath)
+			filePath = olderIPadPath
+			filename = filepath.Base(olderIPadPath)
 			contentType = "video/mp4"
 			immichAsset.ServedMimeType = contentType
 		}

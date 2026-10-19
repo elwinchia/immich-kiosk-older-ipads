@@ -1,5 +1,5 @@
-blank_issues_enabled: false
+blank_issues_enabled: true
 contact_links:
-  - name: Feature Request
-    url: https://github.com/damongolding/immich-kiosk/discussions/new?category=feature-request
-    about: Please use our GitHub Discussion for making feature requests.
+  - name: Not specific to older iPads?
+    url: https://github.com/damongolding/immich-kiosk/issues
+    about: Bugs and feature requests for Kiosk itself belong upstream. Check they happen on stock Kiosk first.

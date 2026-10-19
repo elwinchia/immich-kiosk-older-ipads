@@ -2,11 +2,11 @@ import { formatRFC3339 } from "date-fns/formatRFC3339";
 import htmx from "htmx.org";
 import "htmx-ext-sse";
 import {
-    legacyDebug,
+    olderIPadDebug,
     releaseMedia,
-    scheduleLegacyReload,
+    scheduleOlderIPadReload,
     startInsertedVideos,
-} from "./legacy";
+} from "./older-ipad";
 import type { TimeFormat } from "./clock";
 import { initClock } from "./clock";
 import {
@@ -89,8 +89,8 @@ type KioskData = {
     httpTimeout: number;
     upArrowAction: string;
     downArrowAction: string;
-    legacy: boolean;
-    legacyReload: number;
+    olderIPad: boolean;
+    olderIPadReload: number;
 };
 
 const MAX_FRAMES: number = 2 as const;
@@ -165,8 +165,8 @@ async function init(): Promise<void> {
 
     registerVideoMuteApi();
 
-    if (kioskData.legacy) {
-        scheduleLegacyReload(kioskData.legacyReload);
+    if (kioskData.olderIPad) {
+        scheduleOlderIPadReload(kioskData.olderIPadReload);
         // htmx:load fires for every element htmx inserts (frames and the live-photo snippet);
         // capture phase, so videos are replaced before the frame's own hx-on::load runs
         document.addEventListener(
@@ -177,7 +177,7 @@ async function init(): Promise<void> {
             },
             true,
         );
-        legacyDebug(`legacy mode on, ${navigator.userAgent}`);
+        olderIPadDebug(`older-iPad mode on, ${navigator.userAgent}`);
     }
 
     const MILLISECONDS_PER_SECOND = 1000;
@@ -580,7 +580,7 @@ async function cleanupFrames(): Promise<void> {
             ? frames.length - 1
             : 0;
         try {
-            if (kioskData.legacy) releaseMedia(frames[toRemove]);
+            if (kioskData.olderIPad) releaseMedia(frames[toRemove]);
             frames[toRemove].remove();
         } catch (error) {
             console.error("Failed to remove frame:", error);

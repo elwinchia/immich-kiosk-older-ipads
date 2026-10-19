@@ -45,7 +45,7 @@ func Manifest(c *echo.Context) error {
 		return errors.New("could not read URL. Is it formatted correctly?")
 	}
 
-	// fork: StartURL keeps the query, or "Add to Home Screen" drops ?legacy=true and friends
+	// fork: StartURL keeps the query, or "Add to Home Screen" drops ?older_ipad=true and friends
 	manifest := &ManifestJSON{
 		Name:            "Immich Kiosk",
 		ShortName:       "Kiosk",

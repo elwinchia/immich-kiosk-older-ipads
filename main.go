@@ -229,7 +229,7 @@ func main() {
 
 	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, c), AssetCacheMiddlewareWithConfig(baseConfig))
 
-	e.GET("/legacy/image/:token", routes.LegacyImage)
+	e.GET("/ipad/image/:token", routes.OlderIPadImage)
 
 	e.POST("/asset/new", routes.NewAsset(baseConfig, c))
 

@@ -1,10 +1,10 @@
 package routes
 
-// Legacy-device support (fork: immich-kiosk-legacy).
+// Older-iPad support (fork: immich-kiosk-older-ipads).
 //
 // Old iPads (iOS 12, 1 GB of RAM) are killed by iOS when photos arrive as base64 data
 // URIs inside htmx fragments: the multi-megabyte strings and their decoded bitmaps
-// outlive the frame that showed them. In legacy mode the encoded image is held here for
+// outlive the frame that showed them. In older-iPad mode the encoded image is held here for
 // a short while and the page gets a small URL instead, which WebKit can load and free
 // like any other image.
 
@@ -23,27 +23,27 @@ import (
 )
 
 const (
-	// legacyImageTTL must outlive Kiosk's own asset cache (duration + 1 min, default 5 min),
+	// olderIPadImageTTL must outlive Kiosk's own asset cache (duration + 1 min, default 5 min),
 	// or a prefetched frame could point at an image that is already gone.
-	legacyImageTTL      = 30 * time.Minute
-	legacyImageMaxBytes = 200 << 20
+	olderIPadImageTTL      = 30 * time.Minute
+	olderIPadImageMaxBytes = 200 << 20
 )
 
-type legacyImage struct {
+type olderIPadImage struct {
 	data    []byte
 	mime    string
 	expires time.Time
 }
 
-var legacyImages = struct {
+var olderIPadImages = struct {
 	sync.Mutex
-	byToken map[string]legacyImage
+	byToken map[string]olderIPadImage
 	order   []string // insertion order, oldest first
 	size    int
-}{byToken: map[string]legacyImage{}}
+}{byToken: map[string]olderIPadImage{}}
 
-// storeLegacyImage keeps the encoded image for legacyImageTTL and returns its URL.
-func storeLegacyImage(data []byte, mime string) (string, error) {
+// storeOlderIPadImage keeps the encoded image for olderIPadImageTTL and returns its URL.
+func storeOlderIPadImage(data []byte, mime string) (string, error) {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {
 		return "", err
@@ -51,36 +51,36 @@ func storeLegacyImage(data []byte, mime string) (string, error) {
 	token := hex.EncodeToString(b)
 	now := time.Now()
 
-	legacyImages.Lock()
-	defer legacyImages.Unlock()
+	olderIPadImages.Lock()
+	defer olderIPadImages.Unlock()
 
 	// drop expired entries, then the oldest ones while over budget
-	for len(legacyImages.order) > 0 {
-		oldest := legacyImages.order[0]
-		img, ok := legacyImages.byToken[oldest]
-		if ok && now.Before(img.expires) && legacyImages.size+len(data) <= legacyImageMaxBytes {
+	for len(olderIPadImages.order) > 0 {
+		oldest := olderIPadImages.order[0]
+		img, ok := olderIPadImages.byToken[oldest]
+		if ok && now.Before(img.expires) && olderIPadImages.size+len(data) <= olderIPadImageMaxBytes {
 			break
 		}
 		if ok {
-			legacyImages.size -= len(img.data)
-			delete(legacyImages.byToken, oldest)
+			olderIPadImages.size -= len(img.data)
+			delete(olderIPadImages.byToken, oldest)
 		}
-		legacyImages.order = legacyImages.order[1:]
+		olderIPadImages.order = olderIPadImages.order[1:]
 	}
 
-	legacyImages.byToken[token] = legacyImage{data: data, mime: mime, expires: now.Add(legacyImageTTL)}
-	legacyImages.order = append(legacyImages.order, token)
-	legacyImages.size += len(data)
+	olderIPadImages.byToken[token] = olderIPadImage{data: data, mime: mime, expires: now.Add(olderIPadImageTTL)}
+	olderIPadImages.order = append(olderIPadImages.order, token)
+	olderIPadImages.size += len(data)
 
-	return "/legacy/image/" + token, nil
+	return "/ipad/image/" + token, nil
 }
 
-// LegacyImage serves an image stored by storeLegacyImage. Tokens are 128-bit random,
+// OlderIPadImage serves an image stored by storeOlderIPadImage. Tokens are 128-bit random,
 // so the URL itself is the capability, as a data URI in the page would have been.
-func LegacyImage(c *echo.Context) error {
-	legacyImages.Lock()
-	img, ok := legacyImages.byToken[c.Param("token")]
-	legacyImages.Unlock()
+func OlderIPadImage(c *echo.Context) error {
+	olderIPadImages.Lock()
+	img, ok := olderIPadImages.byToken[c.Param("token")]
+	olderIPadImages.Unlock()
 
 	if !ok || time.Now().After(img.expires) {
 		return c.NoContent(http.StatusNotFound)
@@ -91,10 +91,10 @@ func LegacyImage(c *echo.Context) error {
 	return c.Blob(http.StatusOK, img.mime, img.data)
 }
 
-// imageToSrc returns what goes into an <img src>: a short URL in legacy mode, otherwise
+// imageToSrc returns what goes into an <img src>: a short URL in older-iPad mode, otherwise
 // the usual base64 data URI.
 func imageToSrc(img image.Image, mimeType string, cfg config.Config, requestID, deviceID string, action string, isPrefetch bool) (string, error) {
-	if !cfg.Legacy {
+	if !cfg.OlderIPad {
 		return imageToBase64(img, mimeType, cfg.Kiosk.DebugVerbose, requestID, deviceID, action, isPrefetch)
 	}
 
@@ -103,10 +103,10 @@ func imageToSrc(img image.Image, mimeType string, cfg config.Config, requestID, 
 	if err != nil {
 		return "", err
 	}
-	src, err := storeLegacyImage(data, mime)
+	src, err := storeOlderIPadImage(data, mime)
 	if err != nil {
 		return "", err
 	}
-	logImageProcessing(cfg.Kiosk.DebugVerbose, requestID, deviceID, isPrefetch, action+" (legacy URL)", startTime)
+	logImageProcessing(cfg.Kiosk.DebugVerbose, requestID, deviceID, isPrefetch, action+" (older-iPad URL)", startTime)
 	return src, nil
 }

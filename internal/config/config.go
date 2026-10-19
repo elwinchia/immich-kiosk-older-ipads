@@ -326,12 +326,12 @@ type Config struct {
 	MenuPosition string `json:"menuPosition" yaml:"menu_position" mapstructure:"menu_position" query:"menu_position" form:"menu_position" default:"top"`
 	// OptimizeImages tells Kiosk to optimize images
 	OptimizeImages bool `json:"optimize_images" yaml:"optimize_images" mapstructure:"optimize_images" query:"optimize_images" form:"optimize_images" default:"false"`
-	// Legacy is for old devices (e.g. iPads stuck on iOS 12 with 1 GB of RAM): images are
+	// OlderIPad is for old devices (e.g. iPads stuck on iOS 12 with 1 GB of RAM): images are
 	// served by URL instead of inline base64, removed frames release their media, videos
-	// are transcoded to 720p H.264 and the page reloads every LegacyReload minutes.
-	Legacy bool `json:"legacy" yaml:"legacy" mapstructure:"legacy" query:"legacy" form:"legacy" default:"false"`
-	// LegacyReload is the number of minutes between full page reloads in legacy mode (0 disables).
-	LegacyReload int `json:"legacyReload" yaml:"legacy_reload" mapstructure:"legacy_reload" query:"legacy_reload" form:"legacy_reload" default:"60"`
+	// are transcoded to 720p H.264 and the page reloads every OlderIPadReload minutes.
+	OlderIPad bool `json:"older_ipad" yaml:"older_ipad" mapstructure:"older_ipad" query:"older_ipad" form:"older_ipad" default:"false"`
+	// OlderIPadReload is the number of minutes between full page reloads in older-iPad mode (0 disables).
+	OlderIPadReload int `json:"olderIPadReload" yaml:"older_ipad_reload" mapstructure:"older_ipad_reload" query:"older_ipad_reload" form:"older_ipad_reload" default:"60"`
 
 	// UseGpu tells Kiosk to use GPU where possible
 	UseGpu bool `json:"useGpu" yaml:"use_gpu" mapstructure:"use_gpu" query:"use_gpu" form:"use_gpu" default:"true"`

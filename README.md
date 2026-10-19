@@ -1,3 +1,11 @@
+> [!IMPORTANT]
+> **This is _Immich Kiosk for older iPads_, an unofficial fork** of
+> [damongolding/immich-kiosk](https://github.com/damongolding/immich-kiosk) that keeps Kiosk running
+> on old iPads (iOS 12) used as photo frames: lighter pages, H.264 video, working Live Photos, and
+> optional boomerang Live Photos. It is not affiliated with Immich or Immich Kiosk, and it was
+> written with AI help. **What it changes, how to run it and its options: [FORK.md](FORK.md).**
+> Everything below is upstream's README.
+
 # Immich Kiosk
 
 <div align="center">

@@ -1,4 +1,4 @@
-import { legacyDebug } from "./legacy";
+import { olderIPadDebug } from "./older-ipad";
 
 enum LivePhoto {
     ATTRIBUTE = "data-live-photo",
@@ -19,7 +19,7 @@ function startBoomerang(video: HTMLVideoElement): void {
         const p = video.play();
         if (p && typeof p.catch === "function") {
             p.catch((err: Error) =>
-                legacyDebug(`boomerang play(): ${err.name} ${err.message}`),
+                olderIPadDebug(`boomerang play(): ${err.name} ${err.message}`),
             );
         }
     };
@@ -36,7 +36,7 @@ function startBoomerang(video: HTMLVideoElement): void {
 }
 
 export function livePhoto(delay: number) {
-    // bubble phase: legacy mode has already swapped in its recreated videos, so look them up
+    // bubble phase: older-iPad mode has already swapped in its recreated videos, so look them up
     document.addEventListener("htmx:load", () => {
         const pending = document.querySelectorAll(
             `video[${LivePhoto.BOOMERANG_ATTRIBUTE}]:not([data-boomerang-started])`,

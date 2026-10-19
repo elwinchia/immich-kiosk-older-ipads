@@ -1,3 +1,5 @@
+import { legacyDebug } from "./legacy";
+
 enum LivePhoto {
     ATTRIBUTE = "data-live-photo",
     TOP = "top",
@@ -13,20 +15,30 @@ function startBoomerang(video: HTMLVideoElement): void {
     video.setAttribute("data-boomerang-started", "");
     const insertedAt = Date.now();
 
+    const play = (): void => {
+        const p = video.play();
+        if (p && typeof p.catch === "function") {
+            p.catch((err: Error) =>
+                legacyDebug(`boomerang play(): ${err.name} ${err.message}`),
+            );
+        }
+    };
+
+    // iOS ignores preload and never fires canplay until play() is called, so play straight
+    // away while still faded out, then rewind and fade in once the photo has had its second.
     const reveal = (): void => {
         const wait = Math.max(0, BOOMERANG_HOLD_MS - (Date.now() - insertedAt));
         setTimeout(() => {
             if (!video.isConnected) return;
-            video.muted = true;
-            const p = video.play();
-            if (p && typeof p.catch === "function") p.catch(() => undefined);
+            video.currentTime = 0;
             video.classList.remove(LivePhoto.FADE_CLASS);
+            if (video.paused) play();
         }, wait);
     };
+    video.addEventListener("playing", reveal, { once: true });
 
-    // HAVE_FUTURE_DATA
-    if (video.readyState >= 3) reveal();
-    else video.addEventListener("canplay", reveal, { once: true });
+    video.muted = true;
+    play();
 }
 
 export function livePhoto(delay: number) {

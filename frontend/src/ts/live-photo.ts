@@ -13,9 +13,9 @@ const BOOMERANG_HOLD_MS = 1000;
 
 function startBoomerang(video: HTMLVideoElement): void {
     video.setAttribute("data-boomerang-started", "");
-    const insertedAt = Date.now();
 
     const play = (): void => {
+        if (!video.isConnected || !video.paused) return;
         const p = video.play();
         if (p && typeof p.catch === "function") {
             p.catch((err: Error) =>
@@ -24,21 +24,15 @@ function startBoomerang(video: HTMLVideoElement): void {
         }
     };
 
-    // iOS ignores preload and never fires canplay until play() is called, so play straight
-    // away while still faded out, then rewind and fade in once the photo has had its second.
-    const reveal = (): void => {
-        const wait = Math.max(0, BOOMERANG_HOLD_MS - (Date.now() - insertedAt));
-        setTimeout(() => {
-            if (!video.isConnected) return;
-            video.currentTime = 0;
-            video.classList.remove(LivePhoto.FADE_CLASS);
-            if (video.paused) play();
-        }, wait);
-    };
-    video.addEventListener("playing", reveal, { once: true });
-
-    video.muted = true;
-    play();
+    // Nothing is loaded before play() (preload="none", and iOS ignores preload anyway), so the
+    // video is transparent and the photo shows. The video stays visible throughout: iOS 12
+    // rejects play() on a hidden (opacity:0) muted video with NotAllowedError.
+    setTimeout(() => {
+        video.muted = true;
+        play();
+        // some iOS builds ignore play() before data arrives; try again once it can play
+        video.addEventListener("canplay", play, { once: true });
+    }, BOOMERANG_HOLD_MS);
 }
 
 export function livePhoto(delay: number) {

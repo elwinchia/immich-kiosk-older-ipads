@@ -25,8 +25,11 @@ play forward then backward. The reversed half is appended in the same server-sid
 (`internal/video/legacy.go`), so the only copy is the temp clip the video manager deletes 10 min after
 its last view; nothing is written to Immich. A 3 s clip becomes ~6 s, ~0.7 s to make, ~385 MB peak RAM.
 In boomerang mode the clip is one looping `<video>` (not upstream's top/bottom pair, whose fade at
-each end showed the photo between loops). It stays hidden until it can play, then starts 1 s after it
-was inserted (`live-photo.ts`, `BOOMERANG_HOLD_MS`); `live_photo_loop_delay` does not apply.
+each end showed the photo between loops). It is visible but loads nothing (`preload="none"`), so the photo
+shows through; `play()` is called 1 s after it was inserted (`live-photo.ts`, `BOOMERANG_HOLD_MS`).
+Do not hide it while starting it: iOS 12 rejects `play()` on an `opacity:0` muted video
+(NotAllowedError), and iOS loads nothing before `play()`, so `canplay` cannot gate the start.
+`live_photo_loop_delay` does not apply.
 
 ## Files
 

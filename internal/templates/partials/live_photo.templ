@@ -7,17 +7,19 @@ import (
 
 // boomerang (fork): the clip already runs forward then backward, so a single looping video
 // replaces the top/bottom pair, whose fade at every end showed the photo between loops.
-// It stays faded out and paused; live-photo.ts starts it after the photo has shown for a second.
+// It stays paused with nothing loaded (transparent, so the photo shows) and live-photo.ts plays
+// it after a second. It must be visible when play() is called: iOS 12 rejects play() on an
+// opacity:0 muted video with NotAllowedError.
 templ LivePhoto(videoID, videoMimeType, videoOrientation, password string, boomerang bool) {
 	if boomerang {
 		<video
 			data-live-photo
 			data-live-photo-boomerang
 			data-group={ fmt.Sprintf("live-photo-%s", videoID) }
-			class={ "frame--video--"+videoOrientation, "live-photo", "live-photo-fade" }
+			class={ "frame--video--"+videoOrientation, "live-photo" }
 			muted
 			loop
-			preload="auto"
+			preload="none"
 			playsinline
 			webkit-playsinline
 			x-webkit-airplay="allow"

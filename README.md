@@ -19,24 +19,17 @@
 
   [![Awesome](https://raw.githubusercontent.com/awesome-selfhosted/awesome-selfhosted/master/_static/awesome.png)](https://github.com/awesome-selfhosted/awesome-selfhosted#photo-and-video-galleries)
 
-  <a href="https://github.com/damongolding/immich-kiosk/releases/latest" target="_blank" style="underline: none !important">
-   <img alt="Kiosk latest release number" src="https://badgen.net/github/release/damongolding/immich-kiosk/stable">
+  <a href="https://github.com/elwinchia/immich-kiosk-older-ipads/releases/latest" target="_blank" style="underline: none !important">
+   <img alt="Latest release of this fork" src="https://img.shields.io/github/v/release/elwinchia/immich-kiosk-older-ipads?label=release">
   </a>
 
   <br />
 
-  <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/go-test.yml?label=test&color=029356">
+  <img alt="Test workflow status" src="https://img.shields.io/github/actions/workflow/status/elwinchia/immich-kiosk-older-ipads/go-test.yml?label=test&color=029356">
 
-  <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/ghcr-release.yaml?color=029356">
+  <img alt="Release build status" src="https://img.shields.io/github/actions/workflow/status/elwinchia/immich-kiosk-older-ipads/older-ipads-release.yaml?label=build&color=029356">
 
   <img alt="GitHub License" src="https://img.shields.io/github/license/damongolding/immich-kiosk?color=E6308A">
-
-  <br />
-  <br />
-
-  <a href="https://www.buymeacoffee.com/damongolding" target="_blank" style="underline: none !important">
-    <img src="https://cdn.buymeacoffee.com/buttons/v2/arial-yellow.png" alt="Buy Me A Coffee and support Kiosk" style="height: 46.88px !important;width: 167px !important;">
-  </a>
 
 </div>
 <br />

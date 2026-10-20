@@ -52,32 +52,6 @@ Highly configurable slideshows for displaying [Immich][immich-github-url] assets
 > [!IMPORTANT]
 > **This project is not affiliated with [Immich][immich-github-url]**
 
-------
-
-## Support
-If this project has been helpful to you and you wish to support me, you can do so with the button below 🙂.
-
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/damongolding)
-
-------
-
-## Help
-
-If you have found a bug or have an issue you can submit it [here](https://github.com/damongolding/immich-kiosk/issues/new/choose).
-
-If you'd like to chat or need some informal help, feel free to find me in the Kiosk channel on the Immich discord server.
-
-<a href="https://discord.com/channels/979116623879368755/1293191523927851099">
-  <img style="height:32px!important" src="https://img.shields.io/badge/Immich%20Kiosk-Kiosk%20Discord?style=flat&logo=discord&logoColor=%23fff&labelColor=%235865F2&color=%235865F2" alt="Discord button">
-</a>
-
-------
-
-## AI usage
-Immich Kiosk is hand-curated without any direct AI assistance.
-
-We use CodeRabbit to review code changes, but it is mainly used to provide feedback (which is often ignored), catch bugs, and fix my many typos.
-
 <!-- LINKS & IMAGES -->
 [immich-github-url]: https://github.com/immich-app/immich
 [dietpi-url]: https://dietpi.com/docs/software/desktop/#chromium
